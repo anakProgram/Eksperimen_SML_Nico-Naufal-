@@ -1,0 +1,10 @@
+name: StockPredictionProject
+
+conda_env: conda.yaml
+
+entry_points:
+  main:
+    command: "python Membangun_model/modelling.py"
+
+  tuning:
+    command: "python Membangun_model/modelling_tuning.py"
