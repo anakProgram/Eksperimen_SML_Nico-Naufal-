@@ -3,7 +3,7 @@ name: Train ML Model
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   train-model:
