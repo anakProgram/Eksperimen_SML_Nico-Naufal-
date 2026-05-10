@@ -6,10 +6,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error
 
-# local mlflow database
 mlflow.set_tracking_uri("file:./mlruns")
 
-# create experiment manually
 experiment_name = "Stock_Prediction"
 
 try:
@@ -18,7 +16,6 @@ except:
     experiment = mlflow.get_experiment_by_name(experiment_name)
     experiment_id = experiment.experiment_id
 
-# load dataset
 df = pd.read_csv(
     "preprocessing/dataset_preprocessing/clean_data.csv"
 )
@@ -46,8 +43,8 @@ with mlflow.start_run(experiment_id=experiment_id):
     mlflow.log_metric("mse", mse)
 
     mlflow.sklearn.log_model(
-        model,
-        artifact_path="model"
+        sk_model=model,
+        name="model"
     )
 
     print("MSE:", mse)
