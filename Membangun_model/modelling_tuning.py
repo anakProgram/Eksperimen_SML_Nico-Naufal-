@@ -16,7 +16,7 @@ os.environ["MLFLOW_ENABLE_SYSTEM_METRICS_LOGGING"] = "false"
 
 
 # tracking uri
-mlflow.set_tracking_uri("http://127.0.0.1:5000")
+mlflow.set_tracking_uri("sqlite:///mlflow.db")
 
 # experiment
 mlflow.set_experiment("Stock_Prediction")
