@@ -1,0 +1,373 @@
+# Eksperimen_SML_Nico-Naufal.txt
+
+# Tutorial Menjalankan Aplikasi Eksperimen_SML_Nico-Naufal
+
+## 1. Aktifkan Virtual Environment
+
+Buka terminal di folder project:
+
+```bash
+cd C:\Users\USER\Desktop\Eksperimen_SML_Nico-Naufal
+```
+
+Aktifkan virtual environment:
+
+```powershell
+.\.venv\Scripts\activate
+```
+
+Jika berhasil akan muncul:
+
+```text
+(.venv)
+```
+
+---
+
+# 2. Install Dependency
+
+Install package yang dibutuhkan:
+
+```bash
+pip install -r requirements.txt
+pip install mlflow prometheus-client requests
+```
+
+---
+
+# 3. Menjalankan Model Serving
+
+Jalankan model serving menggunakan MLflow:
+
+```bash
+mlflow models serve -m "mlruns\552846492807027062\models\m-e72e8cad7826470ea5bfff522d6f3f90\artifacts" --host 127.0.0.1 --port 5001 --env-manager local
+```
+
+atau jika model berada di folder lokal:
+
+```bash
+mlflow ui
+```
+
+Jika berhasil akan muncul:
+
+```text
+Listening at: http://127.0.0.1:5001
+```
+
+Endpoint serving:
+
+```text
+http://127.0.0.1:5001/invocations
+```
+
+---
+
+# 4. Menjalankan Prometheus Exporter
+
+Jalankan file monitoring:
+
+```bash
+python Monitoring_Logging/prometheus_exporter.py
+```
+
+Jika berhasil:
+
+```text
+Prometheus metrics running on port 8000
+```
+
+Buka endpoint metrics:
+
+```text
+http://localhost:8000
+```
+
+Metrics yang tersedia:
+
+- model_requests_total
+- model_mse
+- prediction_value
+- cpu_usage_percent
+- memory_usage_percent
+- inference_time_seconds
+
+---
+
+# 5. Menjalankan Prometheus
+
+Masuk ke folder Prometheus:
+
+```powershell
+cd "C:\Users\USER\Downloads\prometheus-3.11.3"
+```
+
+Jalankan Prometheus:
+
+```powershell
+.\prometheus.exe --config.file=prometheus.yml
+```
+
+Jika berhasil:
+
+```text
+Server is ready to receive web requests.
+```
+
+Akses Prometheus:
+
+```text
+http://localhost:9090
+```
+
+---
+
+# 6. Konfigurasi prometheus.yml
+
+Isi file prometheus.yml:
+
+```yaml
+global:
+  scrape_interval: 5s
+
+scrape_configs:
+  - job_name: "ml_monitoring"
+
+    static_configs:
+      - targets: ["localhost:8000"]
+```
+
+---
+
+# 7. Monitoring di Prometheus
+
+Buka:
+
+```text
+http://localhost:9090
+```
+
+Query metrics berikut:
+
+```text
+model_requests_total
+```
+
+```text
+model_mse
+```
+
+```text
+prediction_value
+```
+
+```text
+cpu_usage_percent
+```
+
+```text
+memory_usage_percent
+```
+
+---
+
+# 8. Menjalankan Grafana
+
+Install Grafana kemudian buka:
+
+```text
+http://localhost:3000
+```
+
+Login default:
+
+```text
+username: admin
+password: admin
+```
+
+---
+
+# 9. Menambahkan Data Source Grafana
+
+Masuk ke:
+
+```text
+Connections
+→ Data Sources
+→ Add data source
+```
+
+Pilih:
+
+```text
+Prometheus
+```
+
+Isi URL:
+
+```text
+http://localhost:9090
+```
+
+Klik:
+
+```text
+Save & Test
+```
+
+Jika berhasil:
+
+```text
+Successfully queried the Prometheus API
+```
+
+---
+
+# 10. Membuat Dashboard Grafana
+
+Masuk ke:
+
+```text
+Dashboards
+→ New Dashboard
+```
+
+Tambahkan panel berikut:
+
+| Panel            | Query                |
+| ---------------- | -------------------- |
+| Total Requests   | model_requests_total |
+| Model MSE        | model_mse            |
+| Prediction Value | prediction_value     |
+| CPU Usage        | cpu_usage_percent    |
+| Memory Usage     | memory_usage_percent |
+
+Simpan dashboard dengan nama:
+
+```text
+ML Monitoring Dashboard
+```
+
+---
+
+# 11. Membuat Alerting Grafana
+
+Masuk ke:
+
+```text
+Alerting
+→ Alert Rules
+→ New Alert Rule
+```
+
+Konfigurasi:
+
+## Query
+
+```text
+cpu_usage_percent
+```
+
+## Condition
+
+```text
+IS ABOVE 80
+```
+
+## Evaluation
+
+```text
+Evaluate every: 5s
+For: 5s
+```
+
+## Folder
+
+```text
+ML Monitoring
+```
+
+## Group
+
+```text
+ml_monitoring_group
+```
+
+Klik:
+
+```text
+Save rule and exit
+```
+
+Jika metric CPU lebih dari 80 maka status alert menjadi:
+
+```text
+Firing
+```
+
+---
+
+# 12. Menjalankan Inference
+
+Gunakan file inference yang sudah tersedia:
+
+```bash
+python Monitoring_Logging/inference.py
+```
+
+atau gunakan script berikut:
+
+Buat file inference.py:
+
+```python
+import requests
+
+url = "http://127.0.0.1:5001/invocations"
+
+sample_data = {
+    "dataframe_split": {
+        "columns": [f"f{i}" for i in range(3078)],
+        "data": [[0]*3078]
+    }
+}
+
+response = requests.post(url, json=sample_data)
+
+print("Status Code:", response.status_code)
+print("Response:", response.text)
+```
+
+Jalankan:
+
+```bash
+python inference.py
+```
+
+Jika berhasil:
+
+```text
+Status Code: 200
+```
+
+dan:
+
+```json
+{"predictions":[...]}
+```
+
+---
+
+# 13. Struktur Submission
+
+```text
+Monitoring dan Logging
+├── 1.bukti_serving
+├── 2.prometheus.yml
+├── 3.prometheus_exporter.py
+├── 4.bukti monitoring Prometheus
+├── 5.bukti monitoring Grafana
+├── 6.bukti alerting Grafana
+├── 7.inference.py
+├── folder/file tambahan
+```
