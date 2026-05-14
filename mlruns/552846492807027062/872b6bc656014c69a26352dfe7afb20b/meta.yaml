@@ -1,0 +1,14 @@
+artifact_uri: file:C:/Users/USER/Desktop/Eksperimen_SML_Nico-Naufal/mlruns/552846492807027062/872b6bc656014c69a26352dfe7afb20b/artifacts
+end_time: 1778384562427
+entry_point_name: ''
+experiment_id: '552846492807027062'
+lifecycle_stage: active
+run_id: 872b6bc656014c69a26352dfe7afb20b
+run_name: intelligent-wasp-341
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1778384549488
+status: 3
+tags: []
+user_id: USER
