@@ -1,0 +1,14 @@
+artifact_uri: file:C:/Users/USER/Desktop/Eksperimen_SML_Nico-Naufal/mlruns/552846492807027062/e66e445346074e41b082dc9775d5e1b4/artifacts
+end_time: 1779358400306
+entry_point_name: ''
+experiment_id: '552846492807027062'
+lifecycle_stage: active
+run_id: e66e445346074e41b082dc9775d5e1b4
+run_name: RF_n100_d10
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1779358393160
+status: 3
+tags: []
+user_id: USER

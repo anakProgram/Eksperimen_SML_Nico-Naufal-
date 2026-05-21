@@ -1,0 +1,10 @@
+artifact_location: file:C:/Users/USER/Desktop/Eksperimen_SML_Nico-Naufal/mlruns/552846492807027062/models/m-10db26e2eac946a380026c2de1264c67/artifacts
+creation_timestamp: 1779358382765
+experiment_id: '552846492807027062'
+last_updated_timestamp: 1779358387067
+model_id: m-10db26e2eac946a380026c2de1264c67
+model_type: null
+name: model
+source_run_id: 90e5b4b34b954038af73ad227ecdfcc9
+status: 2
+status_message: null

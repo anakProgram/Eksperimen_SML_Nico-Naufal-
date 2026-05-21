@@ -6,7 +6,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error
 
-mlflow.set_tracking_uri("file:./mlruns")
+mlflow.set_tracking_uri(mlflow.set_tracking_uri("http://127.0.0.1:5001"))
 
 experiment_name = "Stock_Prediction"
 
@@ -17,7 +17,7 @@ except:
     experiment_id = experiment.experiment_id
 
 df = pd.read_csv(
-    "preprocessing/dataset_preprocessing/clean_data.csv"
+    "Membangun_model/dataset_preprocessing/clean_data.csv"
 )
 
 X = df.drop("LastPrice", axis=1)

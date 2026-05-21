@@ -16,14 +16,14 @@ os.environ["MLFLOW_ENABLE_SYSTEM_METRICS_LOGGING"] = "false"
 
 
 # tracking uri
-mlflow.set_tracking_uri("sqlite:///mlflow.db")
+#mlflow.set_tracking_uri("http://127.0.0.1:5001")
 
 # experiment
 mlflow.set_experiment("Stock_Prediction")
 
 # load data
 df = pd.read_csv(
-    "preprocessing/dataset_preprocessing/clean_data.csv"
+    "Membangun_model/dataset_preprocessing/clean_data.csv"
 )
 
 # features & target

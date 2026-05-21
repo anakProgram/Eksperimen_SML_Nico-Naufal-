@@ -70,7 +70,7 @@ def preprocess_pipeline(input_path, output_path, target_col):
 
 if __name__ == "__main__":
     preprocess_pipeline(
-        "dataset_raw/DaftarSaham.csv",
-        "preprocessing/dataset_preprocessing/clean_data.csv",
+        "Membangun_model/dataset_raw/DaftarSaham.csv",
+        "Membangun_model/dataset_preprocessing/clean_data.csv",
         target_col="LastPrice"
     )
