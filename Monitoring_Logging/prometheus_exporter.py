@@ -5,8 +5,29 @@ from prometheus_client import (
     Histogram
 )
 
-import random
 import time
+import psutil
+import joblib
+import pandas as pd
+
+from sklearn.metrics import mean_squared_error
+
+# ======================
+# LOAD MODEL & DATA
+# ======================
+
+model = joblib.load("mlartifacts\\1\\models\\m-f1a2ec09749c499f88d3aca8621c536f\\artifacts\\model.pkl")
+
+df = pd.read_csv(
+    "Membangun_model/dataset_preprocessing/clean_data.csv"
+)
+
+X = df.drop("LastPrice", axis=1)
+y = df["LastPrice"]
+
+# ======================
+# PROMETHEUS METRICS
+# ======================
 
 REQUEST_COUNT = Counter(
     'model_requests_total',
@@ -33,21 +54,51 @@ INFERENCE_TIME = Histogram(
     'Inference latency'
 )
 
+# ======================
+# START EXPORTER
+# ======================
+
 start_http_server(8000)
 
 print("Prometheus Exporter running on port 8000")
+
+# ======================
+# MONITORING LOOP
+# ======================
 
 while True:
 
     REQUEST_COUNT.inc()
 
-    MODEL_MSE.set(random.uniform(0.1, 1.0))
+    # real CPU usage
+    cpu_percent = psutil.cpu_percent(interval=1)
+    CPU_USAGE.set(cpu_percent)
 
-    PREDICTION_VALUE.set(random.uniform(100, 500))
+    # sample inference
+    sample_data = X.iloc[[0]]
 
-    CPU_USAGE.set(random.uniform(20, 95))
+    start_time = time.time()
 
-    with INFERENCE_TIME.time():
-        time.sleep(random.uniform(0.1, 0.5))
+    prediction = model.predict(sample_data)[0]
+
+    inference_duration = time.time() - start_time
+
+    INFERENCE_TIME.observe(inference_duration)
+
+    # real prediction value
+    PREDICTION_VALUE.set(float(prediction))
+
+    # real mse
+    y_pred = model.predict(X)
+
+    mse = mean_squared_error(y, y_pred)
+
+    MODEL_MSE.set(float(mse))
+
+    print(
+        f"Prediction={prediction:.2f} | "
+        f"MSE={mse:.4f} | "
+        f"CPU={cpu_percent}%"
+    )
 
     time.sleep(5)

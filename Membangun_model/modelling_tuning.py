@@ -3,7 +3,6 @@ import mlflow
 import mlflow.sklearn
 import pandas as pd
 
-
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import (
@@ -12,11 +11,14 @@ from sklearn.metrics import (
     r2_score
 )
 
+# disable system metrics
 os.environ["MLFLOW_ENABLE_SYSTEM_METRICS_LOGGING"] = "false"
 
-
 # tracking uri
-#mlflow.set_tracking_uri("http://127.0.0.1:5001")
+# mlflow.set_tracking_uri("http://127.0.0.1:5001")
+
+# enable autolog
+mlflow.sklearn.autolog()
 
 # experiment
 mlflow.set_experiment("Stock_Prediction")
@@ -52,24 +54,23 @@ for n in [50, 100]:
                 random_state=42
             )
 
+            # training
             model.fit(X_train, y_train)
 
+            # prediction
             y_pred = model.predict(X_test)
 
+            # evaluation
             mse = mean_squared_error(y_test, y_pred)
             mae = mean_absolute_error(y_test, y_pred)
             r2 = r2_score(y_test, y_pred)
 
-            # logging params
-            mlflow.log_param("n_estimators", n)
-            mlflow.log_param("max_depth", depth)
+            # optional additional metrics
+            mlflow.log_metric("test_mse", mse)
+            mlflow.log_metric("test_mae", mae)
+            mlflow.log_metric("test_r2", r2)
 
-            # logging metrics
-            mlflow.log_metric("mse", mse)
-            mlflow.log_metric("mae", mae)
-            mlflow.log_metric("r2_score", r2)
-
-            # logging model
+            # explicit model artifact
             mlflow.sklearn.log_model(
                 sk_model=model,
                 artifact_path="model",
