@@ -1,6 +1,0 @@
-pandas
-scikit-learn
-mlflow
-cloudpickle
-joblib
-numpy
