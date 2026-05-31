@@ -19,7 +19,7 @@ from sklearn.metrics import mean_squared_error
 model = joblib.load("mlartifacts\\1\\models\\m-f1a2ec09749c499f88d3aca8621c536f\\artifacts\\model.pkl")
 
 df = pd.read_csv(
-    "Membangun_model/dataset_preprocessing/clean_data.csv"
+    "Membangun_model/preprocessing/dataset_preprocessing/hasil_preprocessing.csv"
 )
 
 X = df.drop("LastPrice", axis=1)

@@ -12,19 +12,23 @@ mlflow.set_tracking_uri("http://127.0.0.1:5001")
 # Experiment
 mlflow.set_experiment("Stock_Prediction")
 
-# Enable autolog
-mlflow.sklearn.autolog()
+# WAJIB (kriteria Basic)
+mlflow.sklearn.autolog(log_models=True)
 
 # Load dataset
 df = pd.read_csv(
-    "Membangun_model/dataset_preprocessing/clean_data.csv"
+    "Membangun_model/dataset_preprocessing/hasil_preprocessing.csv"
 )
 
-# Feature & target
-X = df.drop("LastPrice", axis=1)
+# Features & target
+X = pd.get_dummies(
+    df.drop("LastPrice", axis=1),
+    drop_first=True
+)
+
 y = df["LastPrice"]
 
-# Split dataset
+# Split
 X_train, X_test, y_train, y_test = train_test_split(
     X,
     y,
@@ -40,19 +44,27 @@ with mlflow.start_run():
         random_state=42
     )
 
-    # Training
+    # Train
     model.fit(X_train, y_train)
 
-    # Prediction
+    # Predict
     y_pred = model.predict(X_test)
 
-    # Evaluation
+    # Metric
     mse = mean_squared_error(y_test, y_pred)
 
     print("MSE:", mse)
 
-    # Explicit model logging
-    mlflow.sklearn.log_model(
+    # Log metric
+    mlflow.log_metric("mse", mse)
+
+    # Save model artifact
+    mlflow.sklearn.save_model(
         sk_model=model,
-        artifact_path="model"
+        path="saved_model"
     )
+
+    # Log artifacts manually
+    mlflow.log_artifacts("saved_model", artifact_path="model")
+
+    print("Model artifact berhasil disimpan")

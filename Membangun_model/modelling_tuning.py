@@ -11,28 +11,36 @@ from sklearn.metrics import (
     r2_score
 )
 
-# disable system metrics
+# Disable system metrics
 os.environ["MLFLOW_ENABLE_SYSTEM_METRICS_LOGGING"] = "false"
 
-# tracking uri
-# mlflow.set_tracking_uri("http://127.0.0.1:5001")
+# Tracking URI
+mlflow.set_tracking_uri("http://127.0.0.1:5001")
 
-# enable autolog
-mlflow.sklearn.autolog()
-
-# experiment
+# Experiment
 mlflow.set_experiment("Stock_Prediction")
 
-# load data
+# Load dataset
 df = pd.read_csv(
-    "Membangun_model/dataset_preprocessing/clean_data.csv"
+    "Membangun_model/dataset_preprocessing/hasil_preprocessing.csv"
 )
 
-# features & target
+# Features & target
 X = df.drop("LastPrice", axis=1)
 y = df["LastPrice"]
 
-# split
+# Convert categorical columns to numeric
+X = pd.get_dummies(X, drop_first=True)
+
+# Convert bool -> int
+bool_cols = X.select_dtypes(include='bool').columns
+X[bool_cols] = X[bool_cols].astype(int)
+
+# Validation
+print("Data types:")
+print(X.dtypes.unique())
+
+# Split dataset
 X_train, X_test, y_train, y_test = train_test_split(
     X,
     y,
@@ -40,7 +48,7 @@ X_train, X_test, y_train, y_test = train_test_split(
     random_state=42
 )
 
-# tuning
+# Hyperparameter tuning
 for n in [50, 100]:
     for depth in [5, 10]:
 
@@ -48,36 +56,50 @@ for n in [50, 100]:
             run_name=f"RF_n{n}_d{depth}"
         ):
 
+            # Model
             model = RandomForestRegressor(
                 n_estimators=n,
                 max_depth=depth,
-                random_state=42
+                random_state=42,
+                n_jobs=-1
             )
 
-            # training
+            # Training
             model.fit(X_train, y_train)
 
-            # prediction
+            # Prediction
             y_pred = model.predict(X_test)
 
-            # evaluation
+            # Evaluation
             mse = mean_squared_error(y_test, y_pred)
             mae = mean_absolute_error(y_test, y_pred)
             r2 = r2_score(y_test, y_pred)
 
-            # optional additional metrics
+            # Log parameters
+            mlflow.log_param("n_estimators", n)
+            mlflow.log_param("max_depth", depth)
+
+            # Log metrics
             mlflow.log_metric("test_mse", mse)
             mlflow.log_metric("test_mae", mae)
             mlflow.log_metric("test_r2", r2)
 
-            # explicit model artifact
-            mlflow.sklearn.log_model(
+            # Save model locally first
+            mlflow.sklearn.save_model(
                 sk_model=model,
-                artifact_path="model",
-                serialization_format="cloudpickle"
+                path="saved_model"
+            )
+
+            # Log artifact manually
+            mlflow.log_artifacts(
+                "saved_model",
+                artifact_path="model"
             )
 
             print(
                 f"Run success | "
-                f"n={n}, depth={depth}, mse={mse}"
+                f"n={n}, depth={depth}, "
+                f"MSE={mse:.4f}, "
+                f"MAE={mae:.4f}, "
+                f"R2={r2:.4f}"
             )
